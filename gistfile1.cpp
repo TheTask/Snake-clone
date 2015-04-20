@@ -8,7 +8,7 @@
 using namespace std;
 
 #define vyskaPlochy 20
-#define sirkaPlochy 60
+#define sirkaPlochy 50
 
 struct ClanokHada
 {
@@ -69,7 +69,6 @@ int main()
 			poslednySmer = _getch();
 		}
 		
-
 		if( ZozralPotravu() ) 
 		{
 			dlzkaHada++;
@@ -77,9 +76,11 @@ int main()
 			had.push_back( clanok );
 			InicializujPotravu();
 		}
-		Pohyb();
+
 		VycistiKonzolu();
 		ZobrazPlochu();
+		Pohyb();
+
 		if( Vyhral() )
 		{
 			cout << "Gratulujem, vyhral si!" << endl;
@@ -93,19 +94,20 @@ int main()
 }
 const void ZobrazPlochu() 
 {
-	for( unsigned short i = 0; i < sirkaPlochy + 2; i++ ) cout << "/"; cout << endl; //horna hranica
+	for( unsigned short i = 0; i < sirkaPlochy + 2; i++ ) printf( "%c",'/' ); printf( "\n" ); //horna hranica
 
 	for( unsigned short y = 0; y < vyskaPlochy; y++ )
 	{
-		cout << "/";
+		printf( "%c",'/' );
 		for( unsigned short x = 0; x < sirkaPlochy; x++ )
 		{
-			cout << plocha[ y * sirkaPlochy + x ];
+			printf( "%c",plocha[ y * sirkaPlochy + x ] );
 		}
-		cout << "/" << endl;
+		printf( "%c\n",'/' );
 	}
 	
-	for( unsigned short i = 0; i < sirkaPlochy + 2; i++ ) cout << "/"; cout << endl; //spodna hranica	
+	for( unsigned short i = 0; i < sirkaPlochy + 2; i++ ) printf( "%c",'/' ); printf( "\n" ); //spodna hranica	
+	printf( "Dlzka hada: %d\n",dlzkaHada );
 }
 void NormalizujPlochu()
 {
