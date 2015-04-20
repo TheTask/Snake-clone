@@ -1,6 +1,5 @@
 #include <conio.h>
 #include <stdio.h>
-#include <iostream>
 #include <ctime>
 #include <vector>
 #include <windows.h>
@@ -83,11 +82,11 @@ int main()
 
 		if( Vyhral() )
 		{
-			cout << "Gratulujem, vyhral si!" << endl;
+			printf( "Gratulujem, vyhral si!" );
 		}
 		if( Prehral() )
 		{
-			cout << "Prehral si!" << endl;
+			printf( "Prehral si!" );
 			break;
 		}
 	}
