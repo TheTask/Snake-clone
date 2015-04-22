@@ -6,8 +6,10 @@
 
 using namespace std;
 
-#define vyskaPlochy 20
-#define sirkaPlochy 50
+#define VYSKAPLOCHY 20
+#define SIRKAPLOCHY 50
+#define POCIATOCNADLZKAHADA 3
+#define FPS 10
 
 struct ClanokHada
 {
@@ -21,15 +23,14 @@ struct ClanokHada
 	short y;
 };
 
-unsigned short dlzkaHada = 3;
+unsigned short dlzkaHada = POCIATOCNADLZKAHADA;
 char poslednySmer = 'd';
-vector< ClanokHada > had;
-inline bool operator==( const ClanokHada &lavaStrana,const ClanokHada &pravaStrana );
+vector< ClanokHada > m_Had;
 
 unsigned short xPotrava;
 unsigned short yPotrava;
 
-char plocha[ vyskaPlochy * sirkaPlochy ];
+char plocha[ VYSKAPLOCHY * SIRKAPLOCHY ];
 
 const void ZobrazPlochu();
 void NormalizujPlochu();
@@ -44,6 +45,8 @@ void VycistiKonzolu();
 bool Vyhral();
 bool Prehral();
 
+inline bool operator==( const ClanokHada &lavaStrana,const ClanokHada &pravaStrana );
+
 int main()
 {
 	srand( (unsigned int)time( NULL ) );
@@ -54,13 +57,13 @@ int main()
 
 	for( ;; )
 	{
-		std::clock_t start;
-		double duration = 0.0;
+		clock_t start;
+		double cas = 0.0;
 		start = clock();
 
-		while( duration < 0.1 )
+		while( cas < 1.0 / FPS )
 		{
-			duration = ( clock() - start ) / (double) CLOCKS_PER_SEC;
+			cas = ( clock() - start ) / (double)CLOCKS_PER_SEC;
 		}
 
 		if( _kbhit() )
@@ -72,7 +75,7 @@ int main()
 		{
 			dlzkaHada++;
 			ClanokHada clanok( xPotrava,yPotrava );
-			had.push_back( clanok );
+			m_Had.push_back( clanok );
 			InicializujPotravu();
 		}
 
@@ -82,39 +85,40 @@ int main()
 
 		if( Vyhral() )
 		{
-			printf( "Gratulujem, vyhral si!" );
+			printf( "Gratulujem, vyhral si!\n" );
 		}
 		if( Prehral() )
 		{
-			printf( "Prehral si!" );
+			printf( "Prehral si!\n" );
 			break;
 		}
 	}
+	system( "PAUSE" );
 }
 const void ZobrazPlochu() 
 {
-	for( unsigned short i = 0; i < sirkaPlochy + 2; i++ ) printf( "%c",'/' ); printf( "\n" ); //horna hranica
+	for( unsigned short i = 0; i < SIRKAPLOCHY + 2; i++ ) printf( "%c",'/' ); printf( "\n" ); //horna hranica
 
-	for( unsigned short y = 0; y < vyskaPlochy; y++ )
+	for( unsigned short y = 0; y < VYSKAPLOCHY; y++ )
 	{
 		printf( "%c",'/' );
-		for( unsigned short x = 0; x < sirkaPlochy; x++ )
+		for( unsigned short x = 0; x < SIRKAPLOCHY; x++ )
 		{
-			printf( "%c",plocha[ y * sirkaPlochy + x ] );
+			printf( "%c",plocha[ y * SIRKAPLOCHY + x ] );
 		}
 		printf( "%c\n",'/' );
 	}
 	
-	for( unsigned short i = 0; i < sirkaPlochy + 2; i++ ) printf( "%c",'/' ); printf( "\n" ); //spodna hranica	
+	for( unsigned short i = 0; i < SIRKAPLOCHY + 2; i++ ) printf( "%c",'/' ); printf( "\n" ); //spodna hranica	
 	printf( "Dlzka hada: %d\n",dlzkaHada );
 }
 void NormalizujPlochu()
 {
-	for( unsigned short x = 0; x < sirkaPlochy; x++ )
+	for( unsigned short x = 0; x < SIRKAPLOCHY; x++ )
 	{
-		for( unsigned short y = 0; y < vyskaPlochy; y++ )
+		for( unsigned short y = 0; y < VYSKAPLOCHY; y++ )
 		{
-			 plocha[ y * sirkaPlochy + x ] = ' ';
+			 plocha[ y * SIRKAPLOCHY + x ] = ' ';
 		}
 	}
 }
@@ -125,58 +129,58 @@ const void InicializujHada()
 		ClanokHada clanok;
 		clanok.x = i;
 		clanok.y = 0;
-		had.push_back( clanok );
+		m_Had.push_back( clanok );
 		plocha[ i ] = 'O';
 	}
 }
 const void InicializujPotravu()
 {
-	xPotrava = rand() % sirkaPlochy;
-	yPotrava = rand() % vyskaPlochy;
+	xPotrava = rand() % SIRKAPLOCHY;
+	yPotrava = rand() % VYSKAPLOCHY;
 
-	while( plocha[ yPotrava * sirkaPlochy + xPotrava ] != ' ' )
+	while( plocha[ yPotrava * SIRKAPLOCHY + xPotrava ] != ' ' )
 	{
-		xPotrava = rand() % sirkaPlochy;
-		yPotrava = rand() % vyskaPlochy;
+		xPotrava = rand() % SIRKAPLOCHY;
+		yPotrava = rand() % VYSKAPLOCHY;
 	}
 
-	plocha[ yPotrava * sirkaPlochy + xPotrava ] = 'X'; 
+	plocha[ yPotrava * SIRKAPLOCHY + xPotrava ] = 'X'; 
 }
 void Pohyb()
 {
 	if( poslednySmer == 'd' )
 	{
-		ClanokHada clanok = had.at( had.size() - 1 ); //posledny clanok je vlastne prvy
+		ClanokHada clanok = m_Had.at( m_Had.size() - 1 ); //posledny clanok je vlastne prvy
 		clanok.x++;
-		had.push_back( clanok );
-		plocha[ clanok.y * sirkaPlochy + clanok.x ] = 'O';
+		m_Had.push_back( clanok );
+		plocha[ clanok.y * SIRKAPLOCHY + clanok.x ] = 'O';
 
 		ZmazKoniecHada();
 	}
 	else if( poslednySmer == 's' )
 	{
-		ClanokHada clanok = had.at( had.size() - 1 ); 
+		ClanokHada clanok = m_Had.at( m_Had.size() - 1 ); 
 		clanok.y++;
-		had.push_back( clanok );
-		plocha[ clanok.y * sirkaPlochy + clanok.x ] = 'O';
+		m_Had.push_back( clanok );
+		plocha[ clanok.y * SIRKAPLOCHY + clanok.x ] = 'O';
 
 		ZmazKoniecHada();
 	}
 	else if( poslednySmer == 'a' )
 	{
-		ClanokHada clanok = had.at( had.size() - 1 ); 
+		ClanokHada clanok = m_Had.at( m_Had.size() - 1 ); 
 		clanok.x--;
-		had.push_back( clanok );
-		plocha[ clanok.y * sirkaPlochy + clanok.x ] = 'O';
+		m_Had.push_back( clanok );
+		plocha[ clanok.y * SIRKAPLOCHY + clanok.x ] = 'O';
 
 		ZmazKoniecHada();
 	}
 	else if( poslednySmer == 'w' )
 	{
-		ClanokHada clanok = had.at( had.size() - 1 ); 
+		ClanokHada clanok = m_Had.at( m_Had.size() - 1 ); 
 		clanok.y--;
-		had.push_back( clanok );
-		plocha[ clanok.y * sirkaPlochy + clanok.x ] = 'O';
+		m_Had.push_back( clanok );
+		plocha[ clanok.y * SIRKAPLOCHY + clanok.x ] = 'O';
 
 		ZmazKoniecHada();
 	}
@@ -186,13 +190,13 @@ void Pohyb()
 }
 void ZmazKoniecHada()
 {
-	ClanokHada temp = had[ 0 ]; //prvy je vlastne posledny
-	plocha[ temp.y * sirkaPlochy + temp.x ] = ' ';
-	had.erase( had.begin() );
+	ClanokHada temp = m_Had[ 0 ]; //prvy je vlastne posledny
+	plocha[ temp.y * SIRKAPLOCHY + temp.x ] = ' ';
+	m_Had.erase( m_Had.begin() );
 }
 bool ZozralPotravu()
 {
-	ClanokHada clanok = had.at( had.size() - 1 );
+	ClanokHada clanok = m_Had.at( m_Had.size() - 1 );
 	ClanokHada potrava;
 	potrava.x = xPotrava;
 	potrava.y = yPotrava;
@@ -216,11 +220,11 @@ void VycistiKonzolu()
 bool Vyhral()
 {
 	bool medzera = false;
-	for( unsigned short x = 0; x < sirkaPlochy; x++ )
+	for( unsigned short x = 0; x < SIRKAPLOCHY; x++ )
 	{
-		for( unsigned short y = 0; y < vyskaPlochy; y++ )
+		for( unsigned short y = 0; y < VYSKAPLOCHY; y++ )
 		{
-			 if( plocha[ y * sirkaPlochy + x ] == ' ' )
+			 if( plocha[ y * SIRKAPLOCHY + x ] == ' ' )
 			 {
 				medzera = true;
 				break;
@@ -231,16 +235,16 @@ bool Vyhral()
 }
 bool Prehral()
 {
-	ClanokHada clanok = had.at( had.size() - 1 );
+	ClanokHada clanok = m_Had.at( m_Had.size() - 1 );
 
 	if( clanok.x < 0 || 
-		clanok.x > sirkaPlochy - 1 || 
+		clanok.x > SIRKAPLOCHY - 1 || 
 		clanok.y < 0 ||
-		clanok.y > vyskaPlochy - 1 ) return true;
+		clanok.y > VYSKAPLOCHY - 1 ) return true;
 	
-	for( unsigned short i = 0; i < had.size() - 1; i++ )
+	for( unsigned short i = 0; i < m_Had.size() - 1; i++ )
 	{
-		ClanokHada temp = had[ i ];
+		ClanokHada temp = m_Had[ i ];
 		if( temp == clanok ) return true;
 	}
 
